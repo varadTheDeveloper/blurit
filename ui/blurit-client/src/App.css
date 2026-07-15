@@ -1,0 +1,61 @@
+*,
+*::before,
+*::after{
+
+    box-sizing:border-box;
+
+}
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+body{
+
+    margin:0;
+
+    background:var(--background);
+
+    color:var(--text);
+
+    font-family:Verdana,Geneva,sans-serif;
+
+    line-height:1.6;
+
+    -webkit-font-smoothing:antialiased;
+
+    text-rendering:optimizeLegibility;
+
+}
+
+img{
+
+    max-width:100%;
+
+    display:block;
+
+}
+
+button{
+
+    font:inherit;
+
+}
+
+textarea{
+
+    font:inherit;
+
+}
+
+.container{
+
+    width:min(100%,720px);
+
+    margin:auto;
+
+    padding:20px;
+
+}

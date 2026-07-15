@@ -1,0 +1,45 @@
+.back-to-top{
+
+    position:fixed;
+
+    right:22px;
+
+    bottom:22px;
+
+    width:48px;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:var(--orange);
+
+    color:#111;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+
+    transition:.2s;
+
+    z-index:1000;
+
+}
+
+.back-to-top:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.back-to-top:active{
+
+    transform:scale(.96);
+
+}

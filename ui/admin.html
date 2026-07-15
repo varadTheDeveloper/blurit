@@ -1,190 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>blurit admin</title>
-<script>
-  // Point this at your server, same as the main site.
-  window.BLURIT_API_BASE = 'http://localhost:3000';
-</script>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: #1a1a1a;
-    color: #ddd;
-    font-family: Verdana, Geneva, sans-serif;
-    font-size: 13px;
-  }
-  .topbar {
-    background: #333;
-    padding: 8px 14px;
-    border-bottom: 2px solid #ff6600;
-  }
-  .topbar b { color: #ff6600; }
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 16px 14px 60px;
-  }
-  .key-box {
-    background: #222;
-    border: 1px solid #444;
-    padding: 12px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 8px;
-  }
-  .key-box input {
-    flex: 1;
-    padding: 6px;
-    background: #111;
-    border: 1px solid #555;
-    color: #ddd;
-    font-family: monospace;
-  }
-  .key-box button, .item button {
-    background: #ff6600;
-    border: none;
-    color: #000;
-    font-weight: bold;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  .item button.danger {
-    background: #cc2222;
-    color: #fff;
-  }
-  .status { font-size: 11px; color: #888; margin-top: 6px; }
-  .item {
-    background: #222;
-    border: 1px solid #333;
-    padding: 10px;
-    margin-bottom: 8px;
-  }
-  .item .text {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    margin-bottom: 6px;
-  }
-  .item .meta {
-    font-size: 11px;
-    color: #999;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .item .meta .reports { color: #ff8844; }
-  .item .meta .hidden-tag { color: #cc2222; }
-  .empty { color: #888; padding: 20px 0; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>blurit admin</title>
+  <script>
+
+   window.BLURIT_API_BASE = 'https://api.blurit.org';
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #1a1a1a;
+      color: #ddd;
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 13px;
+    }
+
+    .topbar {
+      background: #333;
+      padding: 8px 14px;
+      border-bottom: 2px solid #ff6600;
+    }
+
+    .topbar b {
+      color: #ff6600;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px 14px 60px;
+    }
+
+    .key-box {
+      background: #222;
+      border: 1px solid #444;
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .key-box input {
+      flex: 1;
+      padding: 6px;
+      background: #111;
+      border: 1px solid #555;
+      color: #ddd;
+      font-family: monospace;
+    }
+
+    .key-box button,
+    .item button {
+      background: #ff6600;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    .item button.danger {
+      background: #cc2222;
+      color: #fff;
+    }
+
+    .status {
+      font-size: 11px;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    .item {
+      background: #222;
+      border: 1px solid #333;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .item .text {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-bottom: 6px;
+    }
+
+    .item .meta {
+      font-size: 11px;
+      color: #999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item .meta .reports {
+      color: #ff8844;
+    }
+
+    .item .meta .hidden-tag {
+      color: #cc2222;
+    }
+
+    .empty {
+      color: #888;
+      padding: 20px 0;
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="topbar"><b>blurit</b> admin — flagged posts</div>
+  <div class="topbar"><b>blurit</b> admin — flagged posts</div>
 
-<div class="container">
-  <div class="key-box">
-    <input id="adminKey" type="password" placeholder="admin key">
-    <button id="loadBtn">load flagged posts</button>
+  <div class="container">
+    <div class="key-box">
+      <input id="adminKey" type="password" placeholder="admin key">
+      <button id="loadBtn">load flagged posts</button>
+    </div>
+    <div id="status" class="status"></div>
+    <div id="list"></div>
   </div>
-  <div id="status" class="status"></div>
-  <div id="list"></div>
-</div>
 
-<script>
-(function () {
-  var API_BASE = window.BLURIT_API_BASE;
-  var keyInput = document.getElementById('adminKey');
-  var loadBtn = document.getElementById('loadBtn');
-  var statusEl = document.getElementById('status');
-  var listEl = document.getElementById('list');
+  <script>
+    (function () {
+      var API_BASE = window.BLURIT_API_BASE;
+      var keyInput = document.getElementById('adminKey');
+      var loadBtn = document.getElementById('loadBtn');
+      var statusEl = document.getElementById('status');
+      var listEl = document.getElementById('list');
 
-  function timeAgo(iso) {
-    var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-    if (diff < 60) return diff + "s ago";
-    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
-    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
-    return Math.floor(diff / 86400) + "d ago";
-  }
+      function timeAgo(iso) {
+        var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+        if (diff < 60) return diff + "s ago";
+        if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+        if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+        return Math.floor(diff / 86400) + "d ago";
+      }
 
-  function loadFlagged() {
-    var key = keyInput.value.trim();
-    if (!key) {
-      statusEl.textContent = 'enter your admin key first';
-      return;
-    }
-    statusEl.textContent = 'loading...';
-    fetch(API_BASE + '/admin/posts', {
-      headers: { 'x-admin-key': key }
-    })
-      .then(function (r) {
-        if (r.status === 403) throw new Error('wrong admin key');
-        return r.json();
-      })
-      .then(function (posts) {
-        statusEl.textContent = posts.length + ' flagged post(s)';
-        renderList(posts, key);
-      })
-      .catch(function (err) {
-        statusEl.textContent = err.message || 'could not load';
-        listEl.innerHTML = '';
-      });
-  }
-
-  function renderList(posts, key) {
-    listEl.innerHTML = '';
-    if (posts.length === 0) {
-      listEl.innerHTML = '<div class="empty">nothing flagged right now.</div>';
-      return;
-    }
-    posts.forEach(function (p) {
-      var div = document.createElement('div');
-      div.className = 'item';
-
-      var textEl = document.createElement('div');
-      textEl.className = 'text';
-      textEl.textContent = p.text;
-
-      var meta = document.createElement('div');
-      meta.className = 'meta';
-      var left = document.createElement('span');
-      left.innerHTML = timeAgo(p.created_at) + ' · <span class="reports">' + p.report_count + ' report' + (p.report_count > 1 ? 's' : '') + '</span>' +
-        (p.hidden ? ' · <span class="hidden-tag">auto-hidden from feed</span>' : '');
-
-      var delBtn = document.createElement('button');
-      delBtn.className = 'danger';
-      delBtn.textContent = 'delete permanently';
-      delBtn.addEventListener('click', function () {
-        if (!confirm('Permanently delete this post? This cannot be undone.')) return;
-        fetch(API_BASE + '/admin/posts/' + p.id + '/purge', {
-          method: 'POST',
+      function loadFlagged() {
+        var key = keyInput.value.trim();
+        if (!key) {
+          statusEl.textContent = 'enter your admin key first';
+          return;
+        }
+        statusEl.textContent = 'loading...';
+        fetch(API_BASE + '/admin/posts', {
           headers: { 'x-admin-key': key }
         })
-          .then(function (r) { return r.json(); })
-          .then(function () {
-            loadFlagged();
+          .then(function (r) {
+            if (r.status === 403) throw new Error('wrong admin key');
+            return r.json();
           })
-          .catch(function () {
-            statusEl.textContent = 'delete failed';
+          .then(function (posts) {
+            statusEl.textContent = posts.length + ' flagged post(s)';
+            renderList(posts, key);
+          })
+          .catch(function (err) {
+            statusEl.textContent = err.message || 'could not load';
+            listEl.innerHTML = '';
           });
+      }
+
+      function renderList(posts, key) {
+        listEl.innerHTML = '';
+        if (posts.length === 0) {
+          listEl.innerHTML = '<div class="empty">nothing flagged right now.</div>';
+          return;
+        }
+        posts.forEach(function (p) {
+          var div = document.createElement('div');
+          div.className = 'item';
+
+          var textEl = document.createElement('div');
+          textEl.className = 'text';
+          textEl.textContent = p.text;
+
+          var meta = document.createElement('div');
+          meta.className = 'meta';
+          var left = document.createElement('span');
+          left.innerHTML = timeAgo(p.created_at) + ' · <span class="reports">' + p.report_count + ' report' + (p.report_count > 1 ? 's' : '') + '</span>' +
+            (p.hidden ? ' · <span class="hidden-tag">auto-hidden from feed</span>' : '');
+
+          var delBtn = document.createElement('button');
+          delBtn.className = 'danger';
+          delBtn.textContent = 'delete permanently';
+          delBtn.addEventListener('click', function () {
+            if (!confirm('Permanently delete this post? This cannot be undone.')) return;
+            fetch(API_BASE + '/admin/posts/' + p.id + '/purge', {
+              method: 'POST',
+              headers: { 'x-admin-key': key }
+            })
+              .then(function (r) { return r.json(); })
+              .then(function () {
+                loadFlagged();
+              })
+              .catch(function () {
+                statusEl.textContent = 'delete failed';
+              });
+          });
+
+          meta.appendChild(left);
+          meta.appendChild(delBtn);
+          div.appendChild(textEl);
+          div.appendChild(meta);
+          listEl.appendChild(div);
+        });
+      }
+
+      loadBtn.addEventListener('click', loadFlagged);
+      keyInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') loadFlagged();
       });
-
-      meta.appendChild(left);
-      meta.appendChild(delBtn);
-      div.appendChild(textEl);
-      div.appendChild(meta);
-      listEl.appendChild(div);
-    });
-  }
-
-  loadBtn.addEventListener('click', loadFlagged);
-  keyInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') loadFlagged();
-  });
-})();
-</script>
+    })();
+  </script>
 
 </body>
+
 </html>

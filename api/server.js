@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json({ limit: '10kb' })); // small body limit - this is text-only, no need for more
 
 const PORT = process.env.PORT || 3000;
-const REPORT_THRESHOLD = parseInt(process.env.REPORT_THRESHOLD || '5', 10);
+const REPORT_THRESHOLD = parseInt(process.env.REPORT_THRESHOLD || '1000', 10);
 const RATE_LIMIT_MS = parseInt(process.env.RATE_LIMIT_MS || '15000', 10);
 const POST_EXPIRY_HOURS = parseInt(process.env.POST_EXPIRY_HOURS || '48', 10);
 const MAX_POST_LENGTH = parseInt(process.env.MAX_POST_LENGTH || '500', 10);
@@ -22,6 +22,10 @@ const LINK_PATTERN = /(https?:\/\/|www\.)\S+/i;
 // not a tracking mechanism - it's wiped on every server restart.
 const lastPostByIp = new Map();
 
+// Remember which posts each IP has already reported.
+// Stored only in RAM and cleared when the server restarts.
+const reportsByIp = new Map();
+
 function getIp(req) {
   return req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress;
 }
@@ -30,20 +34,62 @@ function getIp(req) {
 
 // Get the shared public feed. Anyone can call this, no auth.
 app.get('/posts', async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit || '20', 10), 50);
+  const offset = Math.max(parseInt(req.query.offset || '0', 10), 0);
+
   try {
     const result = await pool.query(
-      `SELECT id, text, created_at
+      `SELECT id, text, created_at, report_count
        FROM posts
        WHERE hidden = false
          AND created_at > now() - interval '${POST_EXPIRY_HOURS} hours'
        ORDER BY created_at DESC
-       LIMIT 100`
+       LIMIT $1 OFFSET $2`,
+      [limit, offset]
     );
+
     res.json(result.rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'could not load feed' });
   }
+});
+
+// Get the newest post id.
+// Used by the frontend to know if new posts arrived without downloading the feed.
+app.get('/posts/latest', async (req, res) => {
+
+  try {
+
+    const result = await pool.query(
+
+      `SELECT id
+       FROM posts
+       WHERE hidden = false
+         AND created_at > now() - interval '${POST_EXPIRY_HOURS} hours'
+       ORDER BY id DESC
+       LIMIT 1`
+
+    );
+
+    res.json({
+
+      latestId: result.rows[0]?.id || 0
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      error: 'could not load latest post'
+
+    });
+
+  }
+
 });
 
 // Create a new post. Text only, nothing else accepted.
@@ -64,7 +110,7 @@ app.post('/posts', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO posts (text) VALUES ($1) RETURNING id, text, created_at`,
+      `INSERT INTO posts (text) VALUES ($1) RETURNING id, text, created_at, report_count`,
       [text]
     );
     lastPostByIp.set(ip, now);
@@ -76,26 +122,93 @@ app.post('/posts', async (req, res) => {
 });
 
 // Report a post. Increments report_count; auto-hides once past threshold.
+
+
 app.post('/posts/:id/report', async (req, res) => {
+
   const id = parseInt(req.params.id, 10);
-  if (!Number.isInteger(id)) return res.status(400).json({ error: 'invalid post id' });
+
+  if (!Number.isInteger(id)) {
+
+    return res.status(400).json({
+
+      error: 'invalid post id'
+
+    });
+
+  }
+
+  const ip = getIp(req);
+
+  let reportedPosts = reportsByIp.get(ip);
+
+  if (!reportedPosts) {
+
+    reportedPosts = new Set();
+
+    reportsByIp.set(ip, reportedPosts);
+
+  }
+
+  if (reportedPosts.has(id)) {
+
+    return res.status(409).json({
+
+      error: 'you already reported this post'
+
+    });
+
+  }
+
+  reportedPosts.add(id);
 
   try {
+
     const result = await pool.query(
+
       `UPDATE posts
        SET report_count = report_count + 1,
            hidden = (report_count + 1 >= $2)
        WHERE id = $1
-       RETURNING id`,
+       RETURNING id, report_count, hidden`,
+
       [id, REPORT_THRESHOLD]
+
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'post not found' });
-    res.json({ reported: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'could not register report' });
+
+    if (result.rows.length === 0) {
+
+      reportedPosts.delete(id);
+
+      return res.status(404).json({
+
+        error: 'post not found'
+
+      });
+
+    }
+
+    res.json(result.rows[0]);
+
   }
+
+  catch (err) {
+
+    reportedPosts.delete(id);
+
+    console.error(err);
+
+    res.status(500).json({
+
+      error: 'could not register report'
+
+    });
+
+  }
+
 });
+
+
 
 // ---- admin-only routes ----
 // Not exposed anywhere in the public UI. Require the secret key header on every call.
@@ -152,6 +265,14 @@ async function cleanupExpired() {
   }
 }
 setInterval(cleanupExpired, 60 * 60 * 1000); // once an hour
+
+// Clear remembered reports every 24 hours.
+// Reports are intentionally kept only in RAM.
+setInterval(() => {
+
+  reportsByIp.clear();
+
+}, 24 * 60 * 60 * 1000);
 
 app.listen(PORT, () => {
   console.log(`blurit server running on port ${PORT}`);

@@ -1,19 +1,21 @@
-blurit
+Blurit
 
-A completely anonymous, text-only place to post whatever you want to say.
-
+A completely anonymous, text-only place to say whatever's on your mind.
 
 No accounts. No sign-up. No login.
-No names, no profiles, no photos.
-No likes, no replies, no follower counts — nothing to compare yourself against.
-Your post joins one shared public feed that anyone can read.
-Nothing is ever tied back to who wrote it.
 
+No names. No profiles. No photos.
 
-If a post is illegal, threatening, or shouldn't be there, anyone can click report —
-enough reports and it's automatically removed from the feed. Posts also disappear on
-their own after 48 hours either way. There's no delete button for regular users — once
-you post, it's out there, same as everyone else's.
+No likes. No replies. No follower counts.
 
-That's the whole idea: a raw, judgment-free place to say something, without anyone
-knowing it was you.
+Just one shared public feed that anyone can read.
+
+Posts appear immediately and are never tied to an identity or profile.
+
+If you see something illegal, threatening, abusive, or that doesn't belong here, click Report. Posts are automatically hidden once they receive enough community reports.
+
+All posts automatically expire after 48 hours.
+
+There is no delete button for regular users. Once you post, it becomes part of the shared public feed until it expires or is removed through community moderation.
+
+That's Blurit — a simple place to share thoughts without building an online identity.
