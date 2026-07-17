@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blurit</title>
+<script>
+  // Production API
+  window.BLURIT_API_BASE = 'https://api.blurit.org';
+</script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #f6f6ef;
+    color: #000;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+  }
+  .topbar {
+    background: #ff6600;
+    padding: 4px 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .topbar .logo {
+    font-weight: bold;
+    color: #000;
+    font-size: 15px;
+    text-decoration: none;
+  }
+  .topbar .tagline {
+    color: #222;
+    font-size: 12px;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 12px 10px 60px;
+  }
+  .post-box {
+    background: #f6f6ef;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+  .post-box textarea {
+    width: 100%;
+    height: 60px;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    padding: 6px;
+    border: 1px solid #999;
+    resize: vertical;
+  }
+  .post-box .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .charcount {
+    color: #828282;
+    font-size: 11px;
+  }
+  .charcount.over {
+    color: #cc0000;
+  }
+  button.post-btn {
+    background: #ff6600;
+    border: 1px solid #b34700;
+    color: #000;
+    font-weight: bold;
+    padding: 4px 14px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button.post-btn:disabled {
+    background: #ddd;
+    border-color: #bbb;
+    color: #888;
+    cursor: not-allowed;
+  }
+  .status-msg {
+    font-size: 11px;
+    color: #007700;
+  }
+  ol.feed {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li.item {
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e2e2;
+    display: flex;
+    gap: 8px;
+  }
+  .rank {
+    color: #828282;
+    width: 22px;
+    text-align: right;
+    flex-shrink: 0;
+    padding-top: 1px;
+  }
+  .item-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .item-text {
+    color: #000;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+  .item-meta {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #828282;
+  }
+  .item-meta a {
+    color: #828282;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .item-meta a:hover {
+    text-decoration: underline;
+  }
+  .item-meta .reported {
+    color: #cc0000;
+  }
+  .empty {
+    color: #828282;
+    padding: 20px 0;
+  }
+  .footer-note {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e2e2;
+    color: #828282;
+    font-size: 11px;
+    line-height: 1.6;
+  }
+.topbar {
+
+    background: #ff6600;
+
+    padding: 6px 10px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+}
+
+.logo {
+
+    font-weight: bold;
+
+    color: #000;
+
+    text-decoration: none;
+
+    font-size: 15px;
+
+}
+
+.topbar-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+}
+
+.tagline {
+
+    color: #222;
+
+    font-size: 12px;
+
+}
+
+.source-link {
+
+    color: #000;
+
+    text-decoration: none;
+
+    border: 1px solid rgba(0,0,0,.25);
+
+    padding: 3px 8px;
+
+    font-size: 12px;
+
+    background: rgba(255,255,255,.15);
+
+}
+
+.source-link:hover {
+
+    background: rgba(255,255,255,.35);
+
+}
+#refreshBanner{display:none;position:sticky;top:8px;z-index:10;margin:8px auto;padding:10px 14px;max-width:260px;text-align:center;background:#ff6600;color:#111;border-radius:999px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.2);cursor:pointer;animation:pop .2s}
+#toTop{display:none;position:fixed;right:18px;bottom:18px;width:42px;height:42px;border:none;border-radius:50%;background:#ff6600;font-size:20px;cursor:pointer}
+@keyframes pop{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+.fadein{animation:fade .25s}
+@keyframes fade{from{opacity:.2;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-color-scheme:dark){
+body,.post-box{background:#111;color:#eee}
+.post-box{border-color:#333}
+.post-box textarea{background:#1a1a1a;color:#eee;border-color:#444}
+.item{border-bottom-color:#2b2b2b}
+.item-text{color:#eee}
+.item-meta,.footer-note,.charcount,.empty{color:#aaa}
+}
+@media (max-width: 600px) {
+
+    .topbar {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+    }
+
+    .topbar-right {
+
+        width: 100%;
+
+        justify-content: space-between;
+
+    }
+
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+
+    <a href="/" class="logo">
+        blurit
+    </a>
+
+    <div class="topbar-right">
+
+        <span class="tagline">
+            anonymous conversations.
+            no accounts.
+            no cookies.
+        </span>
+
+        <a
+            href="https://github.com/varadTheDeveloper/blurit"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="source-link"
+        >
+             GitHub
+        </a>
+
+    </div>
+
+</div>
+
+<div class="container">
+
+  <div class="post-box">
+    <textarea id="postInput" maxlength="500" placeholder="write anything..."></textarea>
+    <div class="row">
+      <span id="charcount" class="charcount">500 left</span>
+      <span style="display:flex; align-items:center; gap:10px;">
+        <span id="statusMsg" class="status-msg"></span>
+        <button id="postBtn" class="post-btn">post</button>
+      </span>
+    </div>
+  </div>
+
+  <div id="refreshBanner">▲ New posts available — Click to refresh</div>
+<ol id="feed" class="feed"></ol>
+<button id="toTop">↑</button>
+  <div id="emptyMsg" class="empty" style="display:none;">no posts yet. be first.</div>
+
+  <div class="footer-note">
+    no accounts. no cookies. no names. posts are public and not reviewed before appearing.<br>
+    click <b>report</b> if something is illegal, threatening, or should not be here — posts are auto-hidden once enough people report them.<br>
+    posts expire automatically after 48 hours.
+  </div>
+
+</div>
+
+<script>
+(function () {
+  // ---- talks to the real Express + Postgres backend ----
+  // Set this to wherever server.js is running.
+ const API_BASE = window.BLURIT_API_BASE || 'https://api.blurit.org';
+
+  var LINK_PATTERN = /(https?:\/\/|www\.)\S+/i;
+  var POLL_MS = 4000; // how often we ask the server for fresh posts
+
+  var reportedIds = new Set(); // client-side only, so the "report" link can't be double-clicked; not sent anywhere as identity
+  var posts=[]; var pendingPosts=null; var offset=0; var loading=false;
+
+  var feedEl = document.getElementById('feed');
+  var emptyEl = document.getElementById('emptyMsg');
+  var input = document.getElementById('postInput');
+  var charcount = document.getElementById('charcount');
+  var postBtn = document.getElementById('postBtn');
+  var statusMsg=document.getElementById('statusMsg');
+var refreshBanner=document.getElementById('refreshBanner');
+var toTop=document.getElementById('toTop');
+
+  function timeAgo(isoOrMs) {
+    var ts = typeof isoOrMs === 'string' ? new Date(isoOrMs).getTime() : isoOrMs;
+    var diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return diff + "s ago";
+    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+    return Math.floor(diff / 86400) + "d ago";
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render() {
+    // server already filters out hidden/expired posts, so we just render what we got
+    var visible = posts;
+
+    feedEl.innerHTML = '';
+    if (visible.length === 0) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+
+    visible.forEach(function (p) {
+      var li = document.createElement('li');
+      li.className = 'item';
+
+      var body = document.createElement('div');
+      body.className = 'item-body';
+
+      var textEl = document.createElement('div');
+      textEl.className = 'item-text';
+      textEl.textContent = p.text;
+
+      var meta = document.createElement('div');
+      meta.className = 'item-meta';
+      var alreadyReported = reportedIds.has(p.id);
+      var reportLabel = alreadyReported ? 'reported' : 'report';
+      var reportCls = alreadyReported ? 'reported' : '';
+      meta.innerHTML = timeAgo(p.created_at) + ' · <a data-id="' + p.id + '" class="report-link ' + reportCls + '">' + reportLabel + '</a>';
+
+      body.appendChild(textEl);
+      body.appendChild(meta);
+      li.appendChild(body);
+      feedEl.appendChild(li);
+    });
+
+    document.querySelectorAll('.report-link').forEach(function (a) {
+      a.addEventListener('click', function () {
+        var id = parseInt(a.getAttribute('data-id'), 10);
+        if (reportedIds.has(id)) return;
+        reportedIds.add(id); // optimistic, prevents double-click spam
+        render();
+        fetch(API_BASE + '/posts/' + id + '/report', { method: 'POST' })
+          .then(function () { return loadFeed(true); })
+          .catch(function (err) { console.error('report failed', err); });
+      });
+    });
+  }
+
+  function loadFeed() {
+    return fetch(API_BASE + '/posts')
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        posts = data;
+        render();
+      })
+      .catch(function (err) {
+        console.error('could not load feed', err);
+      });
+  }
+
+  function updateCharCount() {
+    var left = 500 - input.value.length;
+    charcount.textContent = left + ' left';
+    charcount.className = 'charcount' + (left < 0 ? ' over' : '');
+  }
+
+  function submitPost() {
+    var text = input.value.trim();
+    statusMsg.textContent = '';
+
+    if (!text) return;
+    if (text.length > 500) {
+      statusMsg.textContent = 'too long';
+      return;
+    }
+    if (LINK_PATTERN.test(text)) {
+      statusMsg.textContent = 'links are not allowed';
+      return;
+    }
+
+    postBtn.disabled = true;
+    fetch(API_BASE + '/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text })
+    })
+      .then(function (r) {
+        return r.json().then(function (body) { return { ok: r.ok, body: body }; });
+      })
+      .then(function (result) {
+        postBtn.disabled = false;
+        if (!result.ok) {
+          statusMsg.textContent = result.body.error || 'could not post';
+          return;
+        }
+        input.value = '';
+        updateCharCount();
+        statusMsg.textContent = 'posted';
+        loadFeed(true);
+        setTimeout(function () { statusMsg.textContent = ''; }, 2000);
+      })
+      .catch(function (err) {
+        postBtn.disabled = false;
+        statusMsg.textContent = 'network error';
+        console.error(err);
+      });
+  }
+
+  input.addEventListener('input', updateCharCount);
+  postBtn.addEventListener('click', submitPost);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitPost();
+  });
+
+  
+// UI enhancements
+refreshBanner.onclick=function(){
+ if(pendingPosts){posts=pendingPosts;pendingPosts=null;refreshBanner.style.display='none';render();window.scrollTo({top:0,behavior:'smooth'});}
+};
+window.addEventListener('scroll',function(){
+ toTop.style.display=window.scrollY>500?'block':'none';
+ if(window.innerHeight+window.scrollY>=document.body.offsetHeight-300 && !loading){
+   loading=true;
+   offset+=20;
+   fetch(API_BASE+'/posts?limit=20&offset='+offset).then(r=>r.json()).then(d=>{
+      if(Array.isArray(d)&&d.length){posts=posts.concat(d);render();}
+   }).finally(()=>loading=false);
+ }
+});
+toTop.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+var _oldLoad=loadFeed;
+loadFeed=function(force){
+ return fetch(API_BASE+'/posts',{cache:'no-store'})
+ .then(r=>r.json())
+ .then(data=>{
+   if(force||posts.length===0){
+      posts=data;
+      pendingPosts=null;
+      refreshBanner.style.display='none';
+      render();
+      return;
+   }
+
+   if(!data.length || !posts.length) return;
+
+   // Only show banner if there is actually a newer post
+   if(data[0].id>posts[0].id){
+      pendingPosts=data;
+      refreshBanner.style.display='block';
+   }
+ }).catch(console.error);
+};
+
+  updateCharCount();
+  loadFeed(true);
+  setInterval(loadFeed, POLL_MS); // simple polling so new posts from other people show up
+})();
+</script>
+
+</body>
+</html>
