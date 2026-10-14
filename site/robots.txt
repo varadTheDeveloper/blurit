@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://info.blurit.org/sitemap.xml
