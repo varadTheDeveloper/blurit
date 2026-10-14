@@ -23,8 +23,6 @@ There is no delete button for regular users. Once you post, it becomes part of t
 
 That's Blurit — a simple place to share thoughts without building an online identity.
 
-
-
 ## Read more
 
 - [FAQ](https://info.blurit.org/faq.html)
