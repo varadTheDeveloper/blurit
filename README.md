@@ -23,13 +23,7 @@ There is no delete button for regular users. Once you post, it becomes part of t
 
 That's Blurit — a simple place to share thoughts without building an online identity.
 
-## What's in this repo
 
-| Folder | What it is | Live at |
-|---|---|---|
-| `api/` | Backend — Node.js (Express) + PostgreSQL | https://api.blurit.org |
-| `ui/` | The feed — where people post and read | https://www.blurit.org |
-| `site/` | Info site — home, FAQ, community rules, privacy page and blog (plain static HTML) | https://info.blurit.org |
 
 ## Read more
 
